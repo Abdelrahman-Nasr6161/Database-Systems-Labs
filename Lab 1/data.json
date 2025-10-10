@@ -1,0 +1,76 @@
+{
+  "entities": [
+    {
+      "name": "Team",
+      "attributes": [
+        {
+          "name": "id",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "name"
+        }
+      ]
+    },
+    {
+      "name": "Driver",
+      "attributes": [
+        {
+          "name": "id",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "Name",
+          "composite": [
+            "FirstName",
+            "LastName"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Race",
+      "attributes": [
+        {
+          "name": "id",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "name"
+        },
+        {
+          "name": "location"
+        },
+        {
+          "name": "date"
+        }
+      ]
+    },
+    {
+      "name": "Car",
+      "attributes": [
+        {
+          "name": "id",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "model_name"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "entity1": "Team",
+      "entity2": "Driver",
+      "name": "has_drivers",
+      "cardinality": "1:2"
+    },
+    {
+      "entity1": "Team",
+      "entity2": "Car",
+      "name": "owns_car",
+      "cardinality": "1:1"
+    }
+  ]
+}
