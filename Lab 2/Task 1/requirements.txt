@@ -1,0 +1,5 @@
+eralchemy==1.6.0
+graphviz==0.21
+greenlet==3.2.4
+SQLAlchemy==2.0.44
+typing_extensions==4.15.0
