@@ -1,41 +1,33 @@
-Of course. Here is a comprehensive README file for your Python script, explaining how it works and detailing the syntax for each query.
-
 Simple Relational Algebra Query Engine
 
-This script is a command-line tool that simulates a basic database query engine. It loads data from a local JSON file and allows you to perform core relational algebra operations like SELECT, PROJECT, JOIN, and more using a simple, text-based syntax.
+This script is a command-line tool that simulates a basic database query engine. It loads data from a local JSON file and allows you to perform core relational algebra operations like select, project, join, and more using a simple, function-based syntax.
+
+The key feature of this engine is its ability to nest operations, allowing you to create complex queries by feeding the result of one operation directly into another.
 
 ⚙️ Prerequisites
 
-1. Python
+    Python Ensure you have Python 3 installed on your system. This script uses standard libraries (json, re) and does not require any external packages.
 
-Ensure you have Python 3 installed on your system. This script uses standard libraries (json, re) and does not require any external packages to be installed.
+    Data File The script requires a JSON file named company.json to be in the same directory. This file should contain a single JSON object where each key is a "table name" and its value is an array of objects (the "rows").
 
-2. Data File
+    Example company.json:
+    JSON
 
-The script requires a JSON file named company.json to be in the same directory. This file should contain a single JSON object where each key is a "table name" and its value is an array of objects (the "rows").
-
-Example company.json:
-JSON
-
-{
-  "Employee": [
-    {"SSN": 1, "Name": "Ali", "DeptID": 10, "Salary": 5000},
-    {"SSN": 2, "Name": "Mona", "DeptID": 20, "Salary": 6000},
-    {"SSN": 3, "Name": "Omar", "DeptID": 10, "Salary": 7000}
-  ],
-  "Employee2":
-  [
-    {"SSN": 1, "Name": "Ali", "DeptID": 10, "Salary": 5000},
-    {"SSN": 2, "Name": "Mona", "DeptID": 20, "Salary": 6000},
-    {"SSN": 4, "Name": "Sara", "DeptID": 30, "Salary": 8000},
-    {"SSN": 5, "Name": "Hana", "DeptID": 40, "Salary": 9000},
-    {"SSN": 6, "Name": "Lina", "DeptID": 50, "Salary": 10000}
-  ],
-  "Department": [
-    {"DeptID": 10, "Name": "IT"},
-    {"DeptID": 20, "Name": "HR"}
-  ]
-}
+    {
+      "Employee": [
+        {"SSN": 1, "Name": "Ali", "DeptID": 10, "Salary": 50000},
+        {"SSN": 2, "Name": "Mona", "DeptID": 20, "Salary": 60000},
+        {"SSN": 3, "Name": "Omar", "DeptID": 10, "Salary": 70000}
+      ],
+      "Employee2": [
+        {"SSN": 1, "Name": "Ali", "DeptID": 10, "Salary": 50000},
+        {"SSN": 4, "Name": "Sara", "DeptID": 30, "Salary": 80000}
+      ],
+      "Department": [
+        {"DeptID": 10, "Name": "IT"},
+        {"DeptID": 20, "Name": "HR"}
+      ]
+    }
 
 ▶️ How to Run
 
@@ -48,100 +40,113 @@ JSON
 
     python3 main.py
 
-    An interactive prompt will appear. You can now type your queries.
+    An interactive prompt >> will appear. You can now type your queries.
+
+🚀 Nested Queries
+
+The most powerful feature of this engine is the ability to combine operations. You can use any query as an argument for another query's table source.
+
+Example: Find the names and salaries of employees who earn more than 55,000.
+
+>> project(Name, Salary, select(Salary > 55000, Employee))
+
+How it works:
+
+    The inner select(Salary > 55000, Employee) runs first.
+
+    It returns a temporary, in-memory table containing only the employees who meet the salary condition.
+
+    This temporary table is then passed as the input to the project operation, which selects the Name and Salary columns.
 
 📖 Query Reference
 
-Here are the supported operations and their syntax. All keywords are case-sensitive.
+Here are the supported operations and their syntax. All operation keywords (select, project, etc.) are case-insensitive.
 
-🔍 SELECT
+🔍 select
 
 Filters rows from a single table based on a condition.
 
-    Syntax: SELECT <table_name> WHERE <condition>
+    Syntax: select(<condition>, <table_source>)
 
-    Details: The <condition> is a standard Python boolean expression. You can use the column names as variables within the condition. Standard Python operators like ==, >, <, >=, <=, and, or, not are supported. String values must be enclosed in quotes (e.g., 'John').
+    Details: The <condition> must be enclosed in single or double quotes. It is a standard Python boolean expression where you can use column names as variables. String values within the condition must also be quoted (e.g., 'Name == "Ali"'). The <table_source> can be a table name or another query.
 
     Example:
 
-    SELECT Employee WHERE Salary > 55000 and DeptID == 5
+    >> select('Salary > 55000 and DeptID == 10', Employee)
 
-✨ PROJECT
+✨ project
 
 Selects a subset of columns (attributes) from a table.
 
-    Syntax: PROJECT <attribute1>, <attribute2> FROM <table_name>
+    Syntax: project(<attribute1>, <attribute2>, ..., <table_source>)
 
-    Details: Provide a comma-separated list of the column names you want to display.
+    Details: Provide one or more comma-separated column names you want to display. The last argument must be the <table_source>.
 
     Example:
 
-    PROJECT SSN,Name,Salary FROM employees
+    >> project(SSN, Name, Salary, Employee)
 
-🔗 JOIN
+🔗 join
 
 Combines rows from two tables based on a common attribute value (an inner join).
 
-    Syntax: JOIN <table1>,<table2> ON <common_attribute>
+    Syntax: join(<table1>, <table2>, <common_attribute>)
 
-    Details: The resulting table will have column names prefixed with their original table names (e.g., employees.Fname, departments.Dname).
+    Details: The resulting table will have column names prefixed with their original table names (e.g., Employee.Name, Department.Name). The <common_attribute> should not be in quotes.
 
     Example:
 
-    JOIN Employee,Department ON DeptID
+    >> join(Employee, Department, DeptID)
 
-
-
-∪ UNION
+∪ union
 
 Combines the rows of two tables and removes any duplicates.
 
-    Syntax: UNION <table1>,<table2>
+    Syntax: union(<table_source1>, <table_source2>)
 
     Details: The two tables should have identical column structures for the union to be meaningful.
 
     Example:
 
-    UNION Employee,Employee1
+    >> union(Employee, Employee2)
 
-∩ INTERSECT
+∩ intersect
 
 Returns only the rows that exist in both tables.
 
-    Syntax: INTERSECT <table1>,<table2>
+    Syntax: intersect(<table_source1>, <table_source2>)
 
-    Details: Like UNION, this works best when the tables have identical structures.
-
-    Example:
-
-    INTERSECT Employee,Employee1
-
-− DIFFERENCE
-
-Returns rows that are in the first table but not in the second table.
-
-    Syntax: DIFFERENCE <table1>,<table2>
+    Details: Like union, this works best when the tables have identical structures.
 
     Example:
 
-    DIFFERENCE Employee,Employee1
+    >> intersect(Employee, Employee2)
 
-∑ AGGREGATE
+− difference
+
+Returns rows that are in the first table but not in the second.
+
+    Syntax: difference(<table_source1>, <table_source2>)
+
+    Example:
+
+    >> difference(Employee, Employee2)
+
+∑ aggregate
 
 Performs a calculation on a single column, returning a single value.
 
-    Syntax: AGGREGATE <FUNCTION>(<attribute>) FROM <table_name>
+    Syntax: aggregate(<FUNCTION>(<attribute>), <table_source>)
 
     Supported Functions: SUM, AVG, MIN, MAX, COUNT.
 
     Example:
 
-    AGGREGATE AVG(Salary) FROM Employee
-
-    AGGREGATE COUNT(SSN) FROM Employee
+    >> aggregate(AVG(Salary), Employee)
+    >> aggregate(COUNT(SSN), select(Salary > 60000, Employee))
 
 🚪 Exiting the Program
 
 To stop the script and exit the interactive prompt, type exit and press Enter.
 
-exit
+>> exit
